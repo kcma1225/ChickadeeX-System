@@ -7,6 +7,7 @@ require('dotenv').config();
 const { logger } = require('./utils/logger');
 const { connectDB, closeDB } = require('./database/connection');
 const { connectRedis, closeRedis } = require('./database/redis');
+const { seedDefaultUsers } = require('./database/defaultUsers');
 const errorHandler = require('./middleware/errorHandler');
 const createSessionConfig = require('./middleware/sessionConfig');
 
@@ -153,6 +154,8 @@ async function startServer() {
         // Connect to database
         await connectDB();
         logger.info('Database connected successfully');
+
+        await seedDefaultUsers();
         
         // Connect to Redis
         await connectRedis();

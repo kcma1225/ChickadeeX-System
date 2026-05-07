@@ -48,19 +48,6 @@ CREATE TABLE users (
     CHECK (local_password IS NOT NULL OR keycloak_user_id IS NOT NULL)
 );
 
--- Seed default local users (passwords must be rotated in production)
-INSERT INTO users (email, name, role_id, local_password, is_active)
-SELECT 'admin@chickadeex.com', 'System Administrator', r.id, '$2a$10$Xsm39BDwmOWjSubIbymq9ubHfzMNsaDFzCtvyFmYcPvTRlEi6y5Pm', true
-FROM roles r WHERE r.name = 'admin';
-
-INSERT INTO users (email, name, role_id, local_password, is_active)
-SELECT 'doctor@chickadeex.com', 'Doctor', r.id, '$2a$10$kCdzSc19xNRT4ATk1bVWWO0B1VP5fpaf.CWqZeka6fQ4irpbqf0bO', true
-FROM roles r WHERE r.name = 'doctor';
-
-INSERT INTO users (email, name, role_id, local_password, is_active)
-SELECT 'user@chickadeex.com', 'Test User', r.id, '$2a$10$zCgKAdlv12kP0/cDGGoRt.XyricrN2Nown5NITTU7L1237uASEUcm', true
-FROM roles r WHERE r.name = 'observer';
-
 -- Create sessions table
 CREATE TABLE sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -298,9 +285,7 @@ CREATE TRIGGER update_rag_config_updated_at BEFORE UPDATE ON rag_config
 CREATE TRIGGER update_system_settings_updated_at BEFORE UPDATE ON system_settings 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Default admin user is no longer seeded.
--- The first user authenticated via Keycloak becomes admin automatically
--- (handled in backend auth routes when no admin exists).
+-- Default local users are seeded by backend startup code, not by this schema file.
 
 -- Note: Keycloak will manage its own objects in the "keycloak" schema.
 -- We only ensure the schema exists; Keycloak is configured via KC_DB_SCHEMA.
